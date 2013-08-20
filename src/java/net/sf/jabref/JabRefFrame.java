@@ -96,7 +96,6 @@ public class JabRefFrame extends JFrame implements OutputPrinter {
 
     JabRefPreferences prefs = Globals.prefs; 
     PrefsDialog3 prefsDialog = null;
-    
     private int lastTabbedPanelSelectionIndex = -1 ;
 
     // The sidepane manager takes care of populating the sidepane. 
@@ -356,6 +355,7 @@ public class JabRefFrame extends JFrame implements OutputPrinter {
     dbImport = new DbImportAction(this).getAction(),
     //downloadFullText = new GeneralAction("downloadFullText", "Look up full text document",
     //        Globals.lang("Follow DOI or URL link and try to locate PDF full text document")),
+    SetTableFont = new SetTableFont(),
     increaseFontSize = new IncreaseTableFontSizeAction(),
     decreseFontSize = new DecreaseTableFontSizeAction(),
     installPlugin = new PluginInstallerAction(this),
@@ -1348,6 +1348,8 @@ public JabRefPreferences prefs() {
       view.addSeparator();
       view.add(toggleHighlightAny);
       view.add(toggleHighlightAll);
+      view.addSeparator();
+      view.add(SetTableFont);
       mb.add(view);
 
       bibtex.add(newEntryAction);
@@ -2585,6 +2587,31 @@ class SaveSessionAction
             this.isActive();
             toFront();
         }
+    }
+    
+    public class SetTableFont extends MnemonicAwareAction{
+    	public SetTableFont(){
+    		putValue(NAME, "Set Table Font");
+    	}
+    	public void actionPerformed(ActionEvent e) {
+            Font f = new FontSelectorDialog
+                (null, GUIGlobals.CURRENTFONT).getSelectedFont();
+            if(f==null)
+                return;
+           else
+        	   GUIGlobals.CURRENTFONT = f;
+	    	
+	        prefs.put("fontFamily", GUIGlobals.CURRENTFONT.getFamily());
+	        prefs.putInt("fontStyle", GUIGlobals.CURRENTFONT.getStyle());
+	        prefs.putInt("fontSize", GUIGlobals.CURRENTFONT.getSize());
+	        
+	        if (tabbedPane.getTabCount() > 0) {
+	            for (int i=0; i<tabbedPane.getTabCount(); i++) {
+	            	baseAt(i).updateTableFont();
+	            	baseAt(i).repaint();
+	            }
+	        }
+    	}    
     }
 
     /*private class ForegroundLabel extends JLabel {
